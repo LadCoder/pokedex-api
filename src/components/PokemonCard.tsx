@@ -9,7 +9,8 @@ interface Props {
 
 export function PokemonCard({ pokemon }: Props) {
     const name = capitalizeName(pokemon.name)
-    const bg = validTypes.find((type) => type === pokemon.types[0])
+    const typeName = pokemon.types[0].type.name
+    const bg = validTypes.find((type) => type === typeName)
     const bgColor = typeColor[bg]
 
     return (
@@ -21,7 +22,7 @@ export function PokemonCard({ pokemon }: Props) {
                 <div className={styles.details}>
                     <span className={styles.id}>{formatPokemonId(pokemon.id)}</span>
                     <span className={styles.name}>{name}</span>
-                    <small className={styles.type}>Type: {pokemon.types[0]}</small>
+                    <small className={styles.type}>Type: {typeName}</small>
                 </div>
             </div>
         </div>

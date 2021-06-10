@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Pokemon, PokemonType } from '../types/pokemon'
-
-const pokedexUrl = 'https://pokeapi.co/api/v2/pokemon/'
-const pokemonLimit = 151
+import { Props, useEffect, useState } from 'react'
+import { Pokemon } from '../types/pokemon'
+import { fetchKantoPokemonUrl, fetchSpecificPokemonUrl } from './getApiPath'
 
 export const useGetPokemon = () => {
     const [pokemonList, setPokemonList] = useState<Pokemon[]>([])
@@ -10,7 +8,7 @@ export const useGetPokemon = () => {
 
     useEffect(() => {
         if (mounted) {
-            fetchPokemon(setPokemonList)
+            fetchPokedex(setPokemonList)
         }
         return () => {
             mounted = false
@@ -21,24 +19,46 @@ export const useGetPokemon = () => {
     return pokemonList
 }
 
-const fetchPokemon = (setPokemonList: (list: Pokemon[] | ((prevVar: Pokemon[]) => Pokemon[])) => void) => {
-    let pokemon: Pokemon
-
+const fetchPokedex = (setPokemonList: (list: Pokemon[] | ((prevData: Pokemon[]) => Pokemon[])) => void) => {
     try {
-        for (let i = 1; i <= pokemonLimit; i++) {
-            fetch(`${pokedexUrl}${i}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    pokemon = {
-                        id: data.id,
-                        name: data.name,
-                        sprite: `https://pokeres.bastionbot.org/images/pokemon/${i}.png`,
-                        types: data.types.map((type: { slot: number; type: PokemonType }) => type.type.name)
-                    }
-                    setPokemonList((prevVar: Pokemon[]) => [...prevVar, pokemon])
+        fetch(fetchKantoPokemonUrl(false))
+            .then((res) => res.json())
+            .then((data) => {
+                data.results.map(async (p: { name: string; url: string }) => {
+                    await fetchPokemon({ url: p.url, onSet: setPokemonList })
                 })
-        }
+            })
     } catch (e: any) {
-        alert(`Couldn't get the pokemon: ${e}`)
+        console.log(`Couldn't get the pokemon: ${e}`)
+    }
+}
+
+interface FetchPokemonProps {
+    lookup?: number | string
+    url?: string
+    onSet: (list: Pokemon[] | ((prevData: Pokemon[]) => Pokemon[])) => void
+}
+
+const fetchPokemon = async ({ lookup, url, onSet }: FetchPokemonProps): Promise<Pokemon> => {
+    const fetchUrl = url ? url : fetchSpecificPokemonUrl(lookup)
+    try {
+        await fetch(fetchUrl)
+            .then((res) => res.json())
+            .then((data) => {
+                const p = createPokemonType(data)
+                onSet((prevData: Pokemon[]) => [...prevData, p])
+            })
+    } catch (e: any) {
+        console.log(`Couldn't get the pokemon: ${e}`)
+    }
+    return
+}
+
+const createPokemonType = (data: Pokemon): Pokemon => {
+    return {
+        id: data.id,
+        name: data.name,
+        sprite: `https://pokeres.bastionbot.org/images/pokemon/${data.id}.png`,
+        types: data.types
     }
 }

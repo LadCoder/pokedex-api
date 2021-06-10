@@ -2,7 +2,12 @@ export interface Pokemon {
     id: number
     name: string
     sprite: string
-    types: string[]
+    types: PokemonTypeSlot[]
+}
+
+export type PokemonTypeSlot = {
+    slot: number
+    type: PokemonType
 }
 
 export interface PokemonType {
