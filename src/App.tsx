@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Pokedex } from './components/Pokedex'
 import styles from './App.module.css'
 
