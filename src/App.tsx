@@ -1,19 +1,12 @@
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { Pokedex } from './components/Pokedex'
+import styles from './App.module.css'
 
 export function App() {
-    const [apiResponse, setApiResponse] = useState<string>()
-    useEffect(() => {
-        fetch('http://localhost:4000/')
-            .then((res) => res.text())
-            .then((res) => setApiResponse(res))
-            .catch((err) => err)
-    }, [])
-
     return (
-        <div className="app">
-            <h1>Hello world React!</h1>
-            <p>{apiResponse}</p>
+        <div className={styles.app}>
+            <h1>Kanto Pokedex</h1>
+            <Pokedex />
         </div>
     )
 }
