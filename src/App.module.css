@@ -5,3 +5,46 @@ body {
     background-color: #f1f1f1;
     font-family: fantasy;
 }
+
+.app {
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+}
+
+:root {
+    --red-color: #f5222d;
+    --orange-color: #fa541c;
+    --gold-color: #faad14;
+    --yellow-color: #fadb14;
+    --green-color: #52c41a;
+    --blue-color: #1890ff;
+    --purple-color: #722ed1;
+    --magenta-color: #eb2f96;
+
+    --red-hover-color: #cf1322;
+    --green-hover-color: #389e0d;
+    --blue-hover-color: #0050b3;
+    --gold-hover-color: #d48806;
+
+    --grey-very-dark-color: #262626;
+    --grey-dark-color: #434343;
+    --grey-medium-color: #8c8c8c;
+    --grey-light-color: #bfbfbf;
+    --grey-very-light-color: #f0f0f0;
+
+    --primary-color: var(--blue-color);
+    --primary-hover-color: var(--blue-hover-color);
+    --primary-text-color: #fff;
+
+    --secondary-color: var(--grey-light-color);
+    --secondary-hover-color: var(--grey-medium-color);
+    --secondary-text-color: var(--grey-dark-color);
+}

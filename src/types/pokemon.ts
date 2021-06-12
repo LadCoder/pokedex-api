@@ -1,3 +1,5 @@
+import { Relation } from './commonTypes'
+
 export interface Pokemon {
     id: number
     name: string
@@ -10,10 +12,9 @@ export type PokemonTypeSlot = {
     type: PokemonType
 }
 
-export interface PokemonType {
-    name: string
-    url: string
-}
+export type PokemonType = Relation
+
+export type PokemonEntries = Relation[]
 
 export const typeColor = {
     bug: '#A8B820',
