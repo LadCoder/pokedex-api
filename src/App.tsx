@@ -1,51 +1,65 @@
-import { Pokedex } from './components/Pokedex'
 import styles from './App.module.css'
 import { useEffect, useState } from 'react'
-import { Pagination } from './types/commonTypes'
-import { getAllRegions } from './services/api/getAllRegions'
-import { Region } from './types/region'
-import { getRegion } from './services/api/getRegion'
 import { Button, ButtonBar, ButtonType } from './components/shared/Button'
 import { capitalizeName } from './services/capitalizeName'
+import { allData, defaultData } from './types/allData'
+import { getAllRegions } from './services/api/getAllRegions'
+import { getPokedexFromRegion } from './services/api/getPokedexFromRegion'
+import { RegionContext } from './contexts/RegionContext'
+import { Pokedex } from './components/Pokedex'
 
 export function App() {
-    const [region, setRegion] = useState<string>()
-    const [regionData, setRegionData] = useState<Pagination>()
-    const [selectedRegion, setSelectedRegion] = useState<Region>()
+    const [data, setData] = useState<allData>(defaultData)
+    const [selectedRegion, setSelectedRegion] = useState<string>('')
 
     let mounted = true
 
     useEffect(() => {
-        if (mounted) getAllRegions(setRegionData)
+        if (mounted && data.regions.length === 0) getAllRegions(setData)
         return () => {
             mounted = false
         }
     }, [])
 
     useEffect(() => {
-        if (mounted) getRegion(region, setSelectedRegion)
-        return () => {
-            mounted = false
+        const isRegion = data.regions.find((r) => r.name === selectedRegion)
+        if (!isRegion) return
+
+        const isPokedex = data.pokedex.find((r) => r.region.name === isRegion.name)
+
+        if (isPokedex) {
+        } else {
+            getPokedexFromRegion(data.pokemon, isRegion, setData)
         }
-    }, [region])
+    }, [selectedRegion])
+
+    const regionData = data.regions.find((r) => r.name === selectedRegion)
 
     return (
         <div className={styles.app}>
             <h1>Pokemon</h1>
-            {!regionData ? (
-                'Loading regions...'
-            ) : (
-                <div className={styles.regions}>
-                    <ButtonBar className={styles.buttons}>
-                        {regionData &&
-                            regionData.results.map((r, i) => {
-                                return <Button type={ButtonType.Secondary} key={i} className={styles.region} onClick={() => setRegion(r.url)} text={capitalizeName(r.name)} />
-                            })}
-                    </ButtonBar>
+            <RegionContext.Provider
+                value={{
+                    regions: data.regions,
+                    pokedexes: data.pokedex,
+                    pokemons: data.pokemon,
+                    setData: setData
+                }}>
+                {!data ? (
+                    'Loading regions...'
+                ) : (
+                    <div className={styles.regions}>
+                        <ButtonBar className={styles.buttons}>
+                            {data.regions &&
+                                data.regions.map((r, i) => {
+                                    return <Button type={ButtonType.Secondary} key={i} className={styles.region} onClick={() => setSelectedRegion(r.name)} text={capitalizeName(r.name)} />
+                                })}
+                        </ButtonBar>
 
-                    {region && selectedRegion && <Pokedex region={selectedRegion} />}
-                </div>
-            )}
+                        {regionData && selectedRegion && <Pokedex region={regionData} />}
+                    </div>
+                )}
+            </RegionContext.Provider>
         </div>
     )
 }

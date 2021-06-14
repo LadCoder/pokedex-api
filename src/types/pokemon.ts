@@ -3,6 +3,7 @@ import { Relation } from './commonTypes'
 export interface Pokemon {
     id: number
     name: string
+    order: number
     sprite: string
     types: PokemonTypeSlot[]
 }

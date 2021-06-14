@@ -1,40 +1,23 @@
 import styles from './Pokedex.module.css'
-import { Region } from '../types/region'
-import { Pokedex as PokedexType } from '../types/pokedex'
-import { useEffect, useState } from 'react'
-import { getPokedexFromRegion, getPokemonFromPokedex } from '../services/api/getPokedexFromRegion'
-import { Pokemon } from '../types/pokemon'
+import { RegionData } from '../types/region'
+import { useContext } from 'react'
 import { PokemonCard } from './PokemonCard'
+import { RegionContext } from '../contexts/RegionContext'
 
 interface Props {
-    region: Region
+    region: RegionData
 }
 export function Pokedex({ region }: Props) {
-    const [pokedex, setPokedex] = useState<PokedexType>()
-    const [pokemon, setPokemon] = useState<Pokemon[]>([])
+    const { pokedexes, pokemons } = useContext(RegionContext)
+    const selectedPokedex = pokedexes.find((r) => r.region.name === region.name)
 
-    let mounted = true
+    if (!selectedPokedex) return <div></div>
 
-    useEffect(() => {
-        if (mounted) {
-            setPokemon([])
-            getPokedexFromRegion(region, setPokedex)
-        }
-        return () => {
-            mounted = false
-        }
-    }, [region])
+    const pokemonInPokedex = pokemons.filter((p) => selectedPokedex.pokemon_entries.find((entry) => entry.pokemon_species.name === p.name)).sort((a, b) => a.order - b.order)
 
-    useEffect(() => {
-        if (mounted) getPokemonFromPokedex(pokedex, setPokemon)
-        return () => {
-            mounted = false
-        }
-    }, [pokedex])
-
-    return pokemon.length > 0 ? (
+    return pokemonInPokedex.length > 0 ? (
         <div className={styles.pokedex}>
-            {pokemon.map((p) => {
+            {pokemonInPokedex.map((p) => {
                 return <PokemonCard key={p.id} pokemon={p} />
             })}
         </div>

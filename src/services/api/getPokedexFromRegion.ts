@@ -1,28 +1,44 @@
-import { Pokedex, PokemonEntry } from '../../types/pokedex'
+import { allData } from '../../types/allData'
+import { PokedexData, PokemonEntry } from '../../types/pokedex'
 import { Pokemon } from '../../types/pokemon'
-import { Region } from '../../types/region'
+import { RegionData } from '../../types/region'
 import { fetchSpecificPokemonUrl } from './getApiPath'
 
-export const getPokedexFromRegion = async (region: Region, onSet: (pokedex: Pokedex) => void) => {
-    const url = region.pokedexes[0].url
-
-    fetch(url).then(async (res) => onSet(await res.json()))
+export const getPokedexFromRegion = async (pokemon: Pokemon[], region: RegionData, onSet: (data: allData | ((prevData: allData) => allData)) => void) => {
+    await fetch(region.pokedexes[0].url)
+        .then(async (res) => res.json())
+        .then(async (pokedex) => {
+            await getPokemonFromPokedex(pokemon, pokedex, onSet)
+            onSet((prevData) => {
+                return {
+                    ...prevData,
+                    pokedex: [...prevData.pokedex, pokedex]
+                }
+            })
+        })
 }
 
-export const getPokemonFromPokedex = (pokedex: Pokedex, onSet: (pokemon: Pokemon[] | ((prevData: Pokemon[]) => Pokemon[])) => void) => {
+const getPokemonFromPokedex = async (pokemons: Pokemon[], pokedex: PokedexData, onSet: (data: allData | ((prevData: allData) => allData)) => void) => {
     if (!pokedex) return
     pokedex.pokemon_entries.map((pokemon) => {
+        const doesPokemonExist = pokemons.findIndex((p) => p.name === pokemon.pokemon_species.name)
+        if (doesPokemonExist > -1) return
         getPokemonFromEntry(pokemon, onSet)
     })
 }
 
-export const getPokemonFromEntry = (pokemonEntry: PokemonEntry, onSet: (pokemon: Pokemon[] | ((prevData: Pokemon[]) => Pokemon[])) => void) => {
+export const getPokemonFromEntry = async (pokemonEntry: PokemonEntry, onSet: (data: allData | ((prevData: allData) => allData)) => void) => {
     const url = fetchSpecificPokemonUrl(pokemonEntry.pokemon_species.name)
 
-    fetch(url)
-        .then((res) => res.json())
+    await fetch(url)
+        .then(async (res) => await res.json())
         .then((pokemon) => {
-            onSet((prevData: Pokemon[]) => [...prevData, createPokemonType(pokemon)])
+            onSet((prevData) => {
+                return {
+                    ...prevData,
+                    pokemon: [...prevData.pokemon, createPokemonType(pokemon)]
+                }
+            })
         })
 }
 
@@ -30,6 +46,7 @@ const createPokemonType = (data: Pokemon): Pokemon => {
     return {
         id: data.id,
         name: data.name,
+        order: data.order,
         sprite: `https://pokeres.bastionbot.org/images/pokemon/${data.id}.png`,
         types: data.types
     }
