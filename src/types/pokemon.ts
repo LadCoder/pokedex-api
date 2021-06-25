@@ -1,9 +1,10 @@
 import { Relation } from './commonTypes'
+import { PokedexNumber } from './pokemonSpecies'
 
 export interface Pokemon {
     id: number
     name: string
-    order: number
+    pokedexes: PokedexNumber[]
     sprite: string
     types: PokemonTypeSlot[]
 }
