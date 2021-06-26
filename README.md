@@ -2,6 +2,8 @@
 
 A front-end Typescript/React project that interfaces with PokeAPI to fetch and render data on the different types of pokemon.
 
+Demo: https://xenodochial-visvesvaraya-ec36dd.netlify.app/
+
 ## Learning outcomes
 
 -   Fetching data from an external API
