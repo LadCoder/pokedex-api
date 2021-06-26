@@ -1,5 +1,6 @@
 echo "* Remove any node dependencies *"
 rm -r node_modules
+rm -r build
 
 echo "* Installing NPM packages *"
 npm install
